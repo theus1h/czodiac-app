@@ -109,6 +109,7 @@ module.exports = {
         white: {
           neutral: {
             50: "#F7F7F7",
+            0: "#FFFFFF",
           },
           cool: {
             50: "#F0F3F5",

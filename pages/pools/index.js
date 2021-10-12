@@ -1,7 +1,10 @@
 import Card from "@components/Card"
 import MainLayout from "@components/Layout/Main"
+import Stepper from "@components/Stepper"
 import Head from "next/head"
 import Image from "next/image"
+
+const POOL_STEPS = ["Buy CZF", "Stake CZF", "Earn tokens"]
 
 export default function Page() {
   return (
@@ -14,6 +17,9 @@ export default function Page() {
       <Card className="flex flex-col justify-center text-center p-7">
         <h1 className="font-bold text-title">CZ Pools</h1>
         <h2 className="font-semibold text-header">Stake CZF to earn partnered tokens</h2>
+        <div className="w-3/5 mx-auto my-6">
+          <Stepper steps={POOL_STEPS} />
+        </div>
       </Card>
 
       <Card className="my-6">

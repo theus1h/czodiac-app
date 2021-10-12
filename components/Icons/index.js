@@ -1,4 +1,5 @@
 export { default as Borrow } from "./Borrow"
+export { default as Check } from "./Check"
 export { default as Farm } from "./Farm"
 export { default as Home } from "./Home"
 export { default as Mining } from "./Mining"
