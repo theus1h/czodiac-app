@@ -6,7 +6,16 @@
   height: calc(100vh - 96px);
 }
 
-.active-link .link-option {
+.nav-link-option .nav-icon {
+  @apply opacity-50;
+  @apply text-primary-500;
+}
+
+.active-nav-link .nav-link-option {
   @apply bg-primary-100;
   @apply text-primary-500;
+}
+
+.active-nav-link .nav-link-option .nav-icon {
+  @apply opacity-100;
 }

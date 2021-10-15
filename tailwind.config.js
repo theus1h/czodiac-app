@@ -24,6 +24,12 @@ module.exports = {
         body: ["16px", "24px"],
         caption: ["14px", "21px"],
         small: ["12px", "18px"],
+        button1: ["24px", "24px"],
+        button2: ["16px", "16px"],
+        input1: ["24px", "18px"],
+        input2: ["16px", "16px"],
+        label1: ["24px", "24px"], // letter-spacing: 0.05em
+        label2: ["14px", "14px"], // letter-spacing: 0.1em
       },
       colors: {
         primary: {
