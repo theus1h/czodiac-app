@@ -1,5 +1,5 @@
 import React from "react"
-import ActiveLink from "@components/Link/ActiveLink"
+import ActiveLink from "@components/common/Link/ActiveLink"
 
 import { SIDEBAR_ROUTES } from "./const"
 

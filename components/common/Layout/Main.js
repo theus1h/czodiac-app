@@ -1,5 +1,5 @@
-import Navbar from "@components/Navbar"
-import Sidebar from "@components/Sidebar"
+import Navbar from "@components/common/Navbar"
+import Sidebar from "@components/common/Sidebar"
 
 export default function MainLayout({ children }) {
   return (

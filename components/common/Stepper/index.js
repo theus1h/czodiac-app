@@ -1,10 +1,11 @@
-import { Check } from "@components/Icons"
+import { Check } from "@components/common/Icons"
+import React from "react"
 
 export default function Stepper({ steps = [] }) {
   return (
     <div className="flex items-center">
       {steps.map((step, index) => (
-        <>
+        <React.Fragment key={index}>
           <div className="relative flex items-center">
             <div className="w-[34px] h-[34px] p-[5px] transition duration-500 ease-in-out bg-primary-400 rounded-full text-white-neutral-0">
               <Check />
@@ -16,7 +17,7 @@ export default function Stepper({ steps = [] }) {
           {index !== steps.length - 1 && (
             <div className="flex-auto transition duration-500 ease-in-out border-t-2 border-primary-200"></div>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   )

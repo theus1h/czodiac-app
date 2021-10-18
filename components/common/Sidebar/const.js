@@ -1,4 +1,4 @@
-import { Borrow, Farm, Home, Mining, Nft, SwapAlt, Target, Vault } from "@components/Icons"
+import { Borrow, Farm, Home, Mining, Nft, SwapAlt, Target, Vault } from "@components/common/Icons"
 
 export const SIDEBAR_ROUTES = [
   {

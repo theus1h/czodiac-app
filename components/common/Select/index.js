@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 import { Listbox, Transition } from "@headlessui/react"
-import { Check, ExpandMore } from "@components/Icons"
+import { Check, ExpandMore } from "@components/common/Icons"
 
 export default function Select({ options = [], value, onChange, label, className, ...pass }) {
   return (

@@ -1,4 +1,4 @@
-import { UnfoldMore } from "@components/Icons"
+import { UnfoldMore } from "@components/common/Icons"
 
 const defaultHeaders = [
   { name: "pair", label: "", isSortable: false, render: () => <>Hot</> },

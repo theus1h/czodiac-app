@@ -1,4 +1,4 @@
-import { Search } from "@components/Icons"
+import { Search } from "@components/common/Icons"
 
 export default function Input({ className, ...pass }) {
   return (

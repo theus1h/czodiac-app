@@ -11,21 +11,10 @@ import { parseEther } from "@ethersproject/units"
 const { Interface } = utils
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"))
+const ierc20Interface = new Interface(ierc20)
+const czFarmPoolInterface = new Interface(czFarmPool)
 
 function useCZPools() {
-  const pool = {
-    timestampStart: null,
-    timestampEnd: null,
-    rewardPerSecond: null,
-    totalAmount: null,
-    totalAmountUSD: null,
-    aprBasisPoints: null,
-    userInfo: {
-      amount: null,
-      amountUSD: null,
-      pendingReward: null,
-    },
-  }
   const { account, chainId, library } = useEthers()
 
   const sendWithdrawForPool = async (poolAddress, wad) => {
@@ -52,12 +41,6 @@ function useCZPools() {
     !!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p) => p.rewardAddress) : []
   )
 
-  const ierc20Interface = new Interface(ierc20)
-  const czFarmPoolInterface = new Interface(czFarmPool)
-  const [czFarmPoolContracts, setCzFarmPoolContracts] = useState(
-    !!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p) => new Contract(p.address, czFarmPoolInterface)) : []
-  )
-
   const [pools, setPools] = useState([])
   const [calls, setCalls] = useState([])
   const callResults = useContractCalls(calls) ?? []
@@ -68,6 +51,7 @@ function useCZPools() {
       setCalls(newCalls)
       return
     }
+
     CZFARMPOOLS[chainId].forEach((p) => {
       let ca = p.address
       newCalls.push({

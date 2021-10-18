@@ -1,7 +1,6 @@
-import Card from "@components/Card"
-import MainLayout from "@components/Layout/Main"
+import Card from "@components/common/Card"
+import MainLayout from "@components/common/Layout/Main"
 import Head from "next/head"
-import Image from "next/image"
 
 export default function Page() {
   return (

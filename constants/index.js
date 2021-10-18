@@ -119,21 +119,21 @@ export const CZFARMPOOLS = {
       address: "0xB7987823D1208A75780Be7d2C171A5c74fDbb74b",
       rewardAddress: "0x4492ca0aff6d603e18aea5075b49a5ff76b9ea06",
       rewardDecimals: 18,
-      logo: "./pool/farmageddon.png",
+      logo: "https://app.czodiac.com/pool/FG.png",
     },
     {
       name: "GHD",
       address: "0x009d28c1fcb9ba2256ed07c92049bd2a57f5ab00",
       rewardAddress: "0xfdfd27ae39cebefdbaac8615f18aa68ddd0f15f5",
       rewardDecimals: 18,
-      logo: "./pool/GHD.png",
+      logo: "https://app.czodiac.com/pool/GHD.png",
     },
     {
       name: "IF1",
       address: "0x6e35fdf5071f7c2d0f53532710135055a305731a",
       rewardAddress: "0xfcac1a3ede7b55cc51e3ebff2885a67fbfe01a1a",
       rewardDecimals: 9,
-      logo: "./pool/IF1.png",
+      logo: "https://app.czodiac.com/pool/IF1.png",
     },
     {
       name: "CZF",
@@ -147,7 +147,7 @@ export const CZFARMPOOLS = {
       address: "0xe05A2888De69602B85e23Da67A8EaEdefc3E9E19",
       rewardAddress: "0x1b219Aca875f8C74c33CFF9fF98f3a9b62fCbff5",
       rewardDecimals: 18,
-      logo: "./pool/FINS.png",
+      logo: "https://app.czodiac.com/pool/FINS.png",
     } /*,
     {
       name: "DST",

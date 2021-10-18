@@ -1,18 +1,20 @@
 import React from "react"
-import Card from "@components/Card"
-import Search from "@components/Input/Search"
-import MainLayout from "@components/Layout/Main"
-import Stepper from "@components/Stepper"
-import Switch from "@components/Switch"
-import Select from "@components/Select"
-import * as Table from "@components/Table"
-import ButtonSwitch from "@components/Switch/ButtonSwitch"
+import Card from "@components/common/Card"
+import Search from "@components/common/Input/Search"
+import MainLayout from "@components/common/Layout/Main"
+import Stepper from "@components/common/Stepper"
+import Switch from "@components/common/Switch"
+import Select from "@components/common/Select"
+import * as Table from "@components/common/Table"
+import ButtonSwitch from "@components/common/Switch/ButtonSwitch"
 import useCZPools from "@hooks/useCZPools"
 import Head from "next/head"
 import Image from "next/image"
-import Button from "@components/Button"
+import Button from "@components/common/Button"
 import CZodiacLogo from "assets/czodiac-logo.png"
-import { Add, ArrowDropDown, ArrowDropUp, Clock, ExternalLink, Remove } from "@components/Icons"
+import { Add, ArrowDropDown, ArrowDropUp, Clock, ExternalLink, Remove } from "@components/common/Icons"
+import { tokenAmtToShortString, weiToShortString } from "@utils/bnDisplay"
+import TokenPair from "@components/common/TokenPair"
 
 const POOL_STEPS = ["Buy CZF", "Stake CZF", "Earn tokens"]
 
@@ -32,51 +34,48 @@ const defaultHeaders = [
   { name: "other", label: "", isSortable: false, render: undefined },
 ]
 
-const tokens = ["BELT", "BRY", "BNB", "GHD"]
-
 export default function Page() {
   const { pools } = useCZPools()
   const [sortOption, setSortOption] = React.useState()
   const [rowsExpanded, setRowsExpanded] = React.useState({})
   const [sortColumn, setSortColumn] = React.useState()
 
-  const rows = tokens
-    .map((token) => {
-      const randAPR = (Math.random() * 100).toFixed(2)
-      const randTVL = (Math.random() * 1000000).toFixed(2)
-      const randEarned = (Math.random() * 10000).toFixed(2)
+  console.log({ pools })
+  const rows = pools
+    .map((pool) => {
+      const apr = pool.aprBasisPoints.toNumber() / 100
+      const liquidity = weiToShortString(pool.usdValue, 2)
+      const earnedAmount = tokenAmtToShortString(pool.user.rewardPending, pool.rewardDecimals, 2)
       return [
         {
           name: "pair",
           align: "center",
-          value: token,
-          render: () => (
-            <span className="font-semibold text-subheader text-black-neutral-1000">{`CZF -> ${token}`}</span>
-          ),
+          value: pool.name,
+          render: () => <TokenPair src="CZF" srcName="CZF" dst={pool.logo} dstName={pool.name} />,
         },
         {
           name: "token",
-          value: token,
+          value: pool.name,
           align: "center",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${token}`}</span>,
+          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${pool.name}`}</span>,
         },
         {
           name: "apr",
-          value: randAPR,
+          value: apr,
           align: "left",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${randAPR}%`}</span>,
+          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${apr}%`}</span>,
         },
         {
           name: "liquidity",
-          value: randTVL,
+          value: liquidity,
           align: "left",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`$${randTVL}`}</span>,
+          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">${liquidity}</span>,
         },
         {
           name: "earned",
-          value: randEarned,
+          value: earnedAmount,
           align: "left",
-          render: () => <span className="font-semibold text-subheader text-accent-400">{randEarned}</span>,
+          render: () => <span className="font-semibold text-subheader text-accent-400">{earnedAmount}</span>,
         },
         { name: "other", render: () => <Button rightIcon={<ArrowDropUp />}>Hide</Button> },
       ]
