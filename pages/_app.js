@@ -2,6 +2,7 @@ import { DAppProvider } from "@pdusedapp/core"
 import "../styles/globals.css"
 
 import { CHAINS, MUTICALL_ADDRESSES, RPC_URLS, SUPPORT_CHAINS } from "@constants/index"
+import useCZPools from "@hooks/useCZPools"
 
 const dappConfig = {
   readOnlyChainId: CHAINS.BSCTestnet,
@@ -14,7 +15,15 @@ function MyApp({ Component, pageProps }) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout || ((page) => page)
 
-  return <DAppProvider config={dappConfig}>{getLayout(<Component {...pageProps} />)}</DAppProvider>
+  useCZPools()
+
+  return getLayout(<Component {...pageProps} />)
 }
 
-export default MyApp
+export default function WrappedApp({ Component, pageProps }) {
+  return (
+    <DAppProvider config={dappConfig}>
+      <MyApp Component={Component} pageProps={pageProps} />
+    </DAppProvider>
+  )
+}

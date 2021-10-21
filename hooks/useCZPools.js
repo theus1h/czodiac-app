@@ -8,6 +8,7 @@ import useBUSDPriceMulti from "./useBUSDPriceMulti"
 import czFarmPool from "@contracts/abis/CZFarmPool.json"
 import ierc20 from "@contracts/abis/ierc20.json"
 import { parseEther } from "@ethersproject/units"
+import { useStore } from "@store/index"
 const { Interface } = utils
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"))
@@ -16,6 +17,7 @@ const czFarmPoolInterface = new Interface(czFarmPool)
 
 function useCZPools() {
   const { account, chainId, library } = useEthers()
+  const setPools = useStore((state) => state.setPools)
 
   const sendWithdrawForPool = async (poolAddress, wad) => {
     if (!account || !library || !poolAddress) return
@@ -26,6 +28,7 @@ function useCZPools() {
       console.log(err)
     }
   }
+
   const sendDepositForPool = async (poolAddress, wad) => {
     if (!account || !library || !poolAddress) return
     const poolContract = new Contract(poolAddress, czFarmPoolInterface, library).connect(library.getSigner())
@@ -41,7 +44,6 @@ function useCZPools() {
     !!CZFARMPOOLS[chainId] ? CZFARMPOOLS[chainId].map((p) => p.rewardAddress) : []
   )
 
-  const [pools, setPools] = useState([])
   const [calls, setCalls] = useState([])
   const callResults = useContractCalls(calls) ?? []
 
@@ -175,10 +177,6 @@ function useCZPools() {
     })
     setPools(newPools)
   }, [callResults, czfBusdPrice, rewardBusdPrices])
-
-  return {
-    pools,
-  }
 }
 
 export default useCZPools

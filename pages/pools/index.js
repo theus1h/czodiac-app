@@ -1,24 +1,20 @@
 import React from "react"
 import Card from "@components/common/Card"
-import Search from "@components/common/Input/Search"
+import BannerCard from "@components/common/Card/BannerCard"
 import MainLayout from "@components/common/Layout/Main"
 import Stepper from "@components/common/Stepper"
-import Switch from "@components/common/Switch"
-import Select from "@components/common/Select"
 import * as Table from "@components/common/Table"
-import ButtonSwitch from "@components/common/Switch/ButtonSwitch"
-import useCZPools from "@hooks/useCZPools"
 import Head from "next/head"
-import Image from "next/image"
 import Button from "@components/common/Button"
-import CZodiacLogo from "assets/czodiac-logo.png"
 import { Add, ArrowDropDown, ArrowDropUp, Clock, ExternalLink, Remove } from "@components/common/Icons"
 import { tokenAmtToShortString, weiToShortString } from "@utils/bnDisplay"
 import TokenPair from "@components/common/TokenPair"
+import PoolDetail from "@components/pools/PoolDetail"
+import PoolFilter from "@components/pools/PoolFilter"
+import { usePoolStore } from "@store/pool"
+import { useFilteredPools } from "@components/pools/hooks"
 
 const POOL_STEPS = ["Buy CZF", "Stake CZF", "Earn tokens"]
-
-const sortOptions = [{ label: "LP" }, { label: "APR" }, { label: "Liquidity" }]
 
 const defaultHeaders = [
   {
@@ -35,68 +31,66 @@ const defaultHeaders = [
 ]
 
 export default function Page() {
-  const { pools } = useCZPools()
-  const [sortOption, setSortOption] = React.useState()
   const [rowsExpanded, setRowsExpanded] = React.useState({})
   const [sortColumn, setSortColumn] = React.useState()
 
-  console.log({ pools })
-  const rows = pools
-    .map((pool) => {
-      const apr = pool.aprBasisPoints.toNumber() / 100
-      const liquidity = weiToShortString(pool.usdValue, 2)
-      const earnedAmount = tokenAmtToShortString(pool.user.rewardPending, pool.rewardDecimals, 2)
-      return [
-        {
-          name: "pair",
-          align: "center",
-          value: pool.name,
-          render: () => <TokenPair src="CZF" srcName="CZF" dst={pool.logo} dstName={pool.name} />,
-        },
-        {
-          name: "token",
-          value: pool.name,
-          align: "center",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${pool.name}`}</span>,
-        },
-        {
-          name: "apr",
-          value: apr,
-          align: "left",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${apr}%`}</span>,
-        },
-        {
-          name: "liquidity",
-          value: liquidity,
-          align: "left",
-          render: () => <span className="font-semibold text-subheader text-black-neutral-1000">${liquidity}</span>,
-        },
-        {
-          name: "earned",
-          value: earnedAmount,
-          align: "left",
-          render: () => <span className="font-semibold text-subheader text-accent-400">{earnedAmount}</span>,
-        },
-        { name: "other", render: () => <Button rightIcon={<ArrowDropUp />}>Hide</Button> },
-      ]
-    })
-    .map((row, index) => {
-      const newRow = [...row]
+  const pools = useFilteredPools()
 
-      newRow[row.length - 1].render = () => (
-        <Button
-          rightIcon={rowsExpanded[index] ? <ArrowDropUp /> : <ArrowDropDown />}
-          onClick={() => setRowsExpanded((prev) => ({ ...prev, [index]: !prev[index] }))}
-        >
-          {rowsExpanded[index] ? "Hide" : "Show More"}
-        </Button>
-      )
-      return newRow
-    })
+  // TODO: Sort pools, not rows
+  // rows.sort((a, b) => a.find((e) => e.name === sortColumn)?.value > b.find((e) => e.name === sortColumn)?.value)
 
-  rows.sort((a, b) => a.find((e) => e.name === sortColumn)?.value > b.find((e) => e.name === sortColumn)?.value)
+  // TODO: Initialize `rowsExpanded` when filter changes
 
-  console.log({ pools })
+  const getRowDetail = (pool, index) => {
+    const apr = pool.aprBasisPoints.toNumber() / 100
+    const liquidity = weiToShortString(pool.usdValue, 2)
+    const earnedAmount = tokenAmtToShortString(pool.user.rewardPending, pool.rewardDecimals, 2)
+
+    return [
+      {
+        name: "pair",
+        align: "center",
+        value: pool.name,
+        render: () => <TokenPair src="CZF" srcName="CZF" dst={pool.logo} dstName={pool.name} />,
+      },
+      {
+        name: "token",
+        value: pool.name,
+        align: "center",
+        render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${pool.name}`}</span>,
+      },
+      {
+        name: "apr",
+        value: apr,
+        align: "left",
+        render: () => <span className="font-semibold text-subheader text-black-neutral-1000">{`${apr}%`}</span>,
+      },
+      {
+        name: "liquidity",
+        value: liquidity,
+        align: "left",
+        render: () => <span className="font-semibold text-subheader text-black-neutral-1000">${liquidity}</span>,
+      },
+      {
+        name: "earned",
+        value: earnedAmount,
+        align: "left",
+        render: () => <span className="font-semibold text-subheader text-accent-400">{earnedAmount}</span>,
+      },
+      {
+        name: "other",
+        render: () => (
+          <Button
+            rightIcon={rowsExpanded[index] ? <ArrowDropUp /> : <ArrowDropDown />}
+            onClick={() => setRowsExpanded((prev) => ({ ...prev, [index]: !prev[index] }))}
+          >
+            {rowsExpanded[index] ? "Hide" : "Show More"}
+          </Button>
+        ),
+      },
+    ]
+  }
+
   return (
     <div className="flex flex-col space-y-6">
       <Head>
@@ -104,70 +98,29 @@ export default function Page() {
         <meta name="description" content="Generated by create next app" />
       </Head>
 
-      <Card className="flex flex-col justify-center text-center p-7">
-        <h1 className="font-bold text-title">CZ Pools</h1>
-        <h2 className="font-semibold text-header">Stake CZF to earn partnered tokens</h2>
+      <BannerCard name="pools" className="z-50 flex flex-col justify-center text-center p-7 text-white-neutral-0">
+        <h1 className="z-50 font-bold text-title">CZ Pools</h1>
+        <h2 className="z-50 font-semibold text-header">Stake CZF to earn partnered tokens</h2>
         <div className="w-3/5 mx-auto my-6">
           <Stepper steps={POOL_STEPS} />
         </div>
-      </Card>
+      </BannerCard>
 
-      <Card className="flex items-center justify-around w-full p-8 space-x-6">
-        <Search />
-        <Switch label="Staked Only" />
-        <ButtonSwitch labels={["Live", "Finished"]} />
-        <Select options={sortOptions} label="Sort by" onChange={setSortOption} value={sortOption} />
-      </Card>
+      <PoolFilter />
 
       <Card className="w-full">
         <Table.Root>
           <Table.Head headers={defaultHeaders} sortBy={setSortColumn}></Table.Head>
           <Table.Body>
-            {rows.map((row, idx) => (
-              <Table.Row key={idx} index={idx} columns={row} expanded={rowsExpanded[idx]} className="flex space-x-6">
-                <div className="flex items-center flex-1">
-                  <div className="flex flex-col space-y-2 text-black-neutral-1000">
-                    <div>
-                      <span className="mr-2 text-body">Ends in: 292929 blocks</span>
-                      <Clock className="inline-block" />
-                    </div>
-                    <div>
-                      <span className="mr-2 text-body">See Token Info</span>
-                      <ExternalLink className="inline-block" />
-                    </div>
-                    <div>
-                      <span className="mr-2 text-body">View Contract</span>
-                      <ExternalLink className="inline-block" />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 p-4 text-center border bg-accent-50 border-accent-200 rounded-2xl">
-                  <div className="text-body text-black-neutral-1000">LP Staked</div>
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2 font-semibold text-input1 text-black-neutral-1000">0.00000</span>
-                    <Image src={CZodiacLogo} alt="CZodiac" width={24} height={24} />
-                  </div>
-                  <div className="mt-4 space-x-2">
-                    <Button className="border border-accent-200 text-accent-500" rightIcon={<Add />}>
-                      Add Stake
-                    </Button>
-                    <Button className="border border-accent-200 text-accent-500" disabled rightIcon={<Remove />}>
-                      Unstake
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex-1 p-4 text-center border bg-accent-50 border-accent-200 rounded-2xl">
-                  <div className="text-body text-black-neutral-1000">Earned</div>
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2 font-semibold text-input1 text-black-neutral-1000">0.00000</span>
-                    <Image src={CZodiacLogo} alt="CZodiac" width={24} height={24} />
-                  </div>
-                  <div className="mt-4">
-                    <Button className="w-full border border-accent-200 text-accent-500" disabled>
-                      Harvest
-                    </Button>
-                  </div>
-                </div>
+            {pools.map((pool, idx) => (
+              <Table.Row
+                key={idx}
+                index={idx}
+                columns={getRowDetail(pool, idx)}
+                expanded={rowsExpanded[idx]}
+                className="flex space-x-6"
+              >
+                <PoolDetail pool={pool} />
               </Table.Row>
             ))}
           </Table.Body>

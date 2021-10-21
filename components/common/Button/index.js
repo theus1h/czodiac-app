@@ -1,5 +1,13 @@
-export default function Button({ className, bordered, disabled, leftIcon, rightIcon, ...pass }) {
-  let baseClass = "py-[14px] px-4 bg-white-neutral-0 rounded-full text-body font-semibold"
+export default function Button({
+  className,
+  bordered,
+  disabled,
+  background = "white-neutral-0",
+  leftIcon,
+  rightIcon,
+  ...pass
+}) {
+  let baseClass = `py-[14px] px-4 bg-${background} rounded-full text-body font-semibold`
 
   if (bordered) baseClass += " border border-gray-neutral-200"
   if (disabled) baseClass += " opacity-50 cursor-not-allowed"
