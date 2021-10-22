@@ -10,7 +10,7 @@ export default function Stepper({ steps = [] }) {
             <div className="w-[34px] h-[34px] p-[5px] transition duration-500 ease-in-out text-primary-400 rounded-full bg-white-neutral-0">
               <Check />
             </div>
-            <div className="absolute top-0 w-32 mt-[40px] -ml-10 font-medium text-center text-white-neutral-0 text-subheader">
+            <div className="absolute top-0 w-40 mt-[40px] -ml-16 font-medium text-center text-white-neutral-0 text-subheader">
               {step}
             </div>
           </div>

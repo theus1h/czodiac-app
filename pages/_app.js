@@ -3,6 +3,7 @@ import "../styles/globals.css"
 
 import { CHAINS, MUTICALL_ADDRESSES, RPC_URLS, SUPPORT_CHAINS } from "@constants/index"
 import useCZPools from "@hooks/useCZPools"
+import useCZFarmMaster from "@hooks/useCZFarmMaster"
 
 const dappConfig = {
   readOnlyChainId: CHAINS.BSCTestnet,
@@ -16,6 +17,7 @@ function MyApp({ Component, pageProps }) {
   const getLayout = Component.getLayout || ((page) => page)
 
   useCZPools()
+  useCZFarmMaster()
 
   return getLayout(<Component {...pageProps} />)
 }

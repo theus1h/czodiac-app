@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useEthers, useContractCalls, useContractFunction } from "@pdusedapp/core"
 import { CZFARMMASTER_ADDRESSES, CZFARM_ADDRESSES, BUSD_ADDRESSES } from "@constants/index"
 import { Contract, utils, BigNumber, constants } from "ethers"
 import useDeepCompareEffect from "./useDeepCompareEffect"
 import useBUSDPrice from "./useBUSDPrice"
 import czFarmMaster from "@contracts/abis/CZFarmMaster.json"
-import IAmmPair from "@contracts/abis/IAmmPair.json"
 import ierc20 from "@contracts/abis/ierc20.json"
 const { Interface, parseEther } = utils
-//TODO: use persisted state
+import { useStore } from "@store/index"
+import { selectSetFarmState, selectSetFarmActions } from "@store/selectors"
 
 const weiFactor = BigNumber.from("10").pow(BigNumber.from("18"))
 const DEX = {
@@ -219,43 +219,67 @@ const farmTokens = [
   ],*/
 ]
 
-function useCZFarmMaster() {
-  const baseCZFarmState = {
-    pools: farmLps
-      .map((lpToken, index) => {
-        return { lpToken: lpToken, tokens: farmTokens[index] }
-      })
-      .filter((p) => !!p.lpToken),
-    czfPerBlock: null,
-    totalAllocPoint: null,
-    startBlock: null,
-    poolLength: farmLps.length,
-  }
-  const sendApproveLpForCZFarmMaster = async (lpAddress) => {
-    if (!account || !library || !CZFARMMASTER_ADDRESSES[chainId]) return
-    const lpContract = new Contract(lpAddress, ierc20Interface, library).connect(library.getSigner())
-    try {
-      await lpContract.approve(CZFARMMASTER_ADDRESSES[chainId], constants.MaxUint256)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-  const { account, chainId, library } = useEthers()
+const czfarmMasterInterface = new Interface(czFarmMaster)
+const ierc20Interface = new Interface(ierc20)
 
-  const IAmmPairInterface = new Interface(IAmmPair)
-  const czfarmMasterInterface = new Interface(czFarmMaster)
+const baseCZFarmState = {
+  pools: farmLps
+    .map((lpToken, index) => {
+      return { lpToken: lpToken, tokens: farmTokens[index] }
+    })
+    .filter((p) => !!p.lpToken),
+  czfPerBlock: null,
+  totalAllocPoint: null,
+  startBlock: null,
+  poolLength: farmLps.length,
+}
+
+function useCZFarmMaster() {
+  const { account, chainId, library } = useEthers()
+  const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId])
+  const setFarmState = useStore(selectSetFarmState)
+  const setFarmActions = useStore(selectSetFarmActions)
+
+  const sendApproveLpForCZFarmMaster = useCallback(
+    async (lpAddress) => {
+      if (!account || !library || !CZFARMMASTER_ADDRESSES[chainId]) return
+      const lpContract = new Contract(lpAddress, ierc20Interface, library).connect(library.getSigner())
+      try {
+        await lpContract.approve(CZFARMMASTER_ADDRESSES[chainId], constants.MaxUint256)
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    [account, chainId, library]
+  )
+
   const [czFarmMasterContract, setCzFarmMasterContract] = useState(null)
   const { state: stateDeposit, send: sendDeposit } = useContractFunction(czFarmMasterContract, "deposit")
   const { state: stateWithdraw, send: sendWithdraw } = useContractFunction(czFarmMasterContract, "withdraw")
   const { state: stateClaim, send: sendClaim } = useContractFunction(czFarmMasterContract, "claim")
+
   useEffect(() => {
     if (!!account && !!CZFARMMASTER_ADDRESSES[chainId])
       setCzFarmMasterContract(new Contract(CZFARMMASTER_ADDRESSES[chainId], czfarmMasterInterface))
   }, [account, chainId])
 
-  const [czFarmState, setCZFarmState] = useState(baseCZFarmState)
-  const ierc20Interface = new Interface(ierc20)
-  const czfBusdPrice = useBUSDPrice(CZFARM_ADDRESSES[chainId])
+  useEffect(() => {
+    setFarmActions("sendDeposit", sendDeposit)
+
+    console.count("setFarmActions sendDeposit")
+  }, [setFarmActions, sendDeposit])
+
+  useEffect(() => {
+    setFarmActions("sendWithdraw", sendWithdraw)
+
+    console.count("setFarmActions sendWithdraw")
+  }, [setFarmActions, sendWithdraw])
+
+  useEffect(() => {
+    setFarmActions("sendClaim", sendClaim)
+
+    console.count("setFarmActions sendClaim")
+  }, [setFarmActions, sendClaim])
 
   const [calls, setCalls] = useState([])
   const callResults = useContractCalls(calls) ?? []
@@ -372,7 +396,7 @@ function useCZFarmMaster() {
   }, [account, chainId])
 
   useDeepCompareEffect(() => {
-    let newCZFarmState = { ...czFarmState }
+    let newCZFarmState = { ...baseCZFarmState }
     if (
       !callResults ||
       callResults.length === 0 ||
@@ -419,7 +443,7 @@ function useCZFarmMaster() {
       pool.usdValue = pool.lpUsdPrice.mul(pool.lpBalance).div(weiFactor)
       pool.usdPerDay = pool.czfPerDay.mul(czfBusdPrice).div(weiFactor)
       if (callResults.length > 3 + validFarmLength * 3 && !!callResults[3 + validFarmLength * 4 + 1]) {
-        //results from account
+        // results from account
         const userInfoResults = callResults[3 + validFarmLength * 4 + pid]
         const pendingCzfResults = callResults[3 + validFarmLength * 5 + pid]
         pool.userInfo = {
@@ -444,17 +468,8 @@ function useCZFarmMaster() {
       }
       newCZFarmState.pools[pid] = pool
     }
-    setCZFarmState(newCZFarmState)
-  }, [callResults, czfBusdPrice, stateDeposit, stateWithdraw, stateClaim])
 
-  return {
-    ...(czFarmState ?? baseCZFarmState),
-    stateDeposit,
-    sendDeposit,
-    stateWithdraw,
-    sendWithdraw,
-    stateClaim,
-    sendClaim,
-  }
+    setFarmState(newCZFarmState)
+  }, [callResults, czfBusdPrice, stateDeposit, stateWithdraw, stateClaim, sendApproveLpForCZFarmMaster])
 }
 export default useCZFarmMaster
